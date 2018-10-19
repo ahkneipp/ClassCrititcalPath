@@ -10,11 +10,13 @@ def shell(g):
             print (g.criticalPath(start, end));
         elif command == "list":
             g.printAdjList()
+        elif command == "read":
+            f = input("File? ")
+            g.readGraph(f)
         print(command)
 
 def main():
     g = graph()
-    g.readGraph("test.txt")
     shell(g)
 
 if __name__ == "__main__":

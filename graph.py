@@ -77,7 +77,7 @@ class graph:
                     startTimes[n][1] = max(startTimes[n][1], startTimes[nodeQueue[0]][1] - 1)
                 nodeQueue.pop(0)
             
-            critPathList = [start]
+            critPathList = [[start, startTimes[start][0]]]
             for i in startTimes.keys():
                 if startTimes[i][0] == startTimes[i][1] and startTimes[i][0] > 0:
                     critPathList.append([i,startTimes[i][0]])
