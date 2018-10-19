@@ -1,16 +1,21 @@
 from graph import graph
 
-def shell():
-    while command.to_lower() != "q":
+def shell(g):
+    command = ""
+    while command.lower() != "q":
         command = input("> ")
         if command == "critical path":
-
+            start = input ("Start? ")
+            end = input("End? ")
+            print (g.criticalPath(start, end));
+        elif command == "list":
+            g.printAdjList()
         print(command)
 
 def main():
     g = graph()
     g.readGraph("test.txt")
-    shell()
+    shell(g)
 
 if __name__ == "__main__":
     main()
