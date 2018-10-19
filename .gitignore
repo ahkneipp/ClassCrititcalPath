@@ -4,3 +4,6 @@
 *.swo
 
 __pycache__/
+.idea/
+
+*.xml
