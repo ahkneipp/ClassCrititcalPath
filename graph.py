@@ -1,34 +1,38 @@
-#TODO convert all of this to use adjecency matrix
+import math
 
 class graph:
     
     def __init__(self):
         self.adjList = dict()
 
+    # Reads a graph in adjacency list format from a file, allowing duplicate edges.
     def readGraph(self, fileName):
         for line in open(fileName):
             nodes = line.split()
-            if nodes[0] in self.adjList:
-                if nodes[1] not in self.adjList[nodes[0]]:
-                    self.adjList[nodes[0]].append(nodes[1])
-            else:
-                self.adjList[nodes[0]] = [nodes[1]]
+            for i in range(1, len(nodes)):
+                # If the node doesn't already exist as a key in the list, python
+                # will throw a KeyError, so make sure it exists, or create a new
+                # list to store its children in the graph
+                if nodes[0] in self.adjList:
+                    self.adjList[nodes[0]].append(nodes[i])
+                else:
+                    self.adjList[nodes[0]] = [nodes[i]]
 
+    # Writes the adjacency list for this run to a file, in such a manner that the program
+    # can read it back in
     def writeToFile(self, fileName):
         f = open(fileName, "a")
         for key in self.adjList:
+            f.write(key + " ")
             for val in self.adjList[key]:
-                f.write(key + " " + val + "\n")
+                f.write(val + " ")
+            f.write("\n")
 
     def addNode(self, nodeName):
-        self.adjList[key] = []
+        self.adjList[nodeName] = []
 
     def connect(self, source, dest):
-        if self.adjList[source] == []:
-            self.adjList[source] = [dest]
-        else:
-            if dest not in self.adjList[source]:
-                self.adjList[source].append(dest)
+        self.adjList[source].append(dest)
 
     def findParents(self, node):
         parentsList = []
@@ -56,34 +60,57 @@ class graph:
                     nodeList.append(i)
         return nodeList
 
+#TODO this is broken
     def criticalPath(self, start, end):
-        if start in self.adjList.keys() and self.isInGraph(end):
-            startTimes = {key: [0,0] for key in self.getAllNodes()}
-            nodeQueue = []
-            nodeQueue.append(start)
-            while nodeQueue:
-                if nodeQueue[0] in self.adjList.keys():
-                    nodeQueue.extend(self.adjList[nodeQueue[0]])
-                    for n in self.adjList[nodeQueue[0]]:
-                        startTimes[n][0] = max(startTimes[n][0], startTimes[nodeQueue[0]][0] + 1)
-                nodeQueue.pop(0)
+        # Create a list of all the vertices in the graph with their earliest start times initially set to 0
+        # TODO BFS of the graph to initialize would be faster
+        earliestStartTimes = dict()
+        for node in self.adjList:
+            earliestStartTimes[node] = 0
+            for n in self.adjList[node]:
+                earliestStartTimes[n] = 0
 
-            nodeQueue.append(end)
-            startTimes[end][1] = startTimes[end][0]
-            while nodeQueue:
-                parentsList = self.findParents(nodeQueue[0])
-                nodeQueue.extend(parentsList)
-                for n in parentsList:
-                    startTimes[n][1] = max(startTimes[n][1], startTimes[nodeQueue[0]][1] - 1)
-                nodeQueue.pop(0)
-            
-            critPathList = [[start, startTimes[start][0]]]
-            for i in startTimes.keys():
-                if startTimes[i][0] == startTimes[i][1] and startTimes[i][0] > 0:
-                    critPathList.append([i,startTimes[i][0]])
-            return critPathList
-        else: return []
+        # Set up the latestStartTimes list
+        latestStartTimes = dict()
+        for node in earliestStartTimes:
+            latestStartTimes[node] = math.inf
+
+        # Compute the earliest start time for each node
+        queue = [start]
+        while queue:
+            currentVert = queue.pop(0)
+            if currentVert in self.adjList:
+                for vert in self.adjList[currentVert]:
+                    earliestStartTimes[vert] = max(earliestStartTimes[vert], earliestStartTimes[currentVert] + 1)
+                    queue.append(vert)
+
+        complementGraph = self.getComplement()
+        latestStartTimes[end] = earliestStartTimes[end]
+        queue = [end]
+        while queue:
+            currentVert = queue.pop(0)
+            if currentVert in complementGraph.adjList:
+                for vert in complementGraph.adjList[currentVert]:
+                    latestStartTimes[vert] = min(latestStartTimes[vert], latestStartTimes[currentVert] - 1)
+                    queue.append(vert)
+        
+        criticalPath = []
+        for v in earliestStartTimes:
+            if earliestStartTimes[v] == latestStartTimes[v]:
+                criticalPath.append([v, earliestStartTimes[v], latestStartTimes[v]])
+        return criticalPath
+
+    def getComplement(self):
+        complement = graph()
+        for vert in self.adjList:
+            for v in self.adjList[vert]:
+                if v in complement.adjList:
+                    complement.adjList[v].append(vert)
+                else:
+                    complement.adjList[v] = [vert]
+        return complement
 
     def printAdjList(self):
         for key in self.adjList:
             print(key + ", " +  str(self.adjList[key]))
+
