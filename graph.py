@@ -66,7 +66,7 @@ class graph:
                     nodeQueue.extend(self.adjList[nodeQueue[0]])
                     for n in self.adjList[nodeQueue[0]]:
                         startTimes[n][0] = max(startTimes[n][0], startTimes[nodeQueue[0]][0] + 1)
-                nodeQueue.pop(0);
+                nodeQueue.pop(0)
 
             nodeQueue.append(end)
             startTimes[end][1] = startTimes[end][0]
