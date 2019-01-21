@@ -60,7 +60,6 @@ class graph:
                     nodeList.append(i)
         return nodeList
 
-#TODO this is broken
     def criticalPath(self, start, end):
         # Create a list of all the vertices in the graph with their earliest start times initially set to 0
         # TODO BFS of the graph to initialize would be faster
@@ -96,7 +95,7 @@ class graph:
         
         criticalPath = []
         for v in earliestStartTimes:
-            if earliestStartTimes[v] == latestStartTimes[v]:
+#            if earliestStartTimes[v] == latestStartTimes[v]:
                 criticalPath.append([v, earliestStartTimes[v], latestStartTimes[v]])
         return criticalPath
 
